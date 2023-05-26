@@ -5,6 +5,7 @@ class GeuLang:
     def __init__(self):
         self.data = [0]*256
         self.end = False
+        self.goto = 0
 
     def toNumber(self, codesome):
         if '흐' in codesome:
@@ -57,12 +58,13 @@ class GeuLang:
     def getType(self, code):
         if not code:
             return 'BLANK'
+
         if ';' not in code:
             raise SyntaxError(f'세에미콜로오온!!')
 
         if code.startswith('그') and '?' in code:
             return 'INPUT'
-        if code.startswith('그'):  # 변수 선언
+        if code.startswith('그'):
             return 'DEF'
         if code.startswith('흐'):
             return 'CALL'
@@ -70,6 +72,8 @@ class GeuLang:
             return 'IF'
         if code.startswith('읗'):
             return 'PRINT'
+        if code.startswith('세미콜론'):
+            return 'GOTO'
         if code.startswith('두루미합체'):
             return 'END'
 
@@ -86,47 +90,33 @@ class GeuLang:
             var = code.count('그')
             self.data[var] = int(input())
 
-        # elif TYPE == 'CALL' :
-        #     var = code.count('흐')
-        #     val = self.data[var]
-        #     if val >0 : num = '.'*val
-        #     else : num = '~'*val
-        #     code = code.replace('흐'*var,num)
-        #     self.data[var] = self.toNumber(code)
-
         elif TYPE == 'PRINT':
             val = self.toNumber(code)
             print(val)
-            # var = code.count('흐')
-            # if var == 0:
-            #     val = self.toNumber(code)
-            # else:
-            #     val = self.data[var]
-            # if len(code) == 2:
-            #     print()
-            # else:
-            #     print(val)
 
         elif TYPE == 'IF':
             var1, var2, cmd = code.split('?')
-            # val1 = self.data[var1.count('흐')] if var1.count('흐')!=0 else self.toNumber(var1)
-            # val2 = self.data[var2.count('흐')] if var2.count('흐')!=0 else self.toNumber(var2)
             val1 = self.toNumber(var1)
             val2 = self.toNumber(var2)
             if val1 == val2:
                 self.compileLine(cmd)
+        elif TYPE == 'GOTO':
+            self.goto = self.toNumber(code)-1
 
         elif TYPE == 'END':
             self.end = True
 
     def compile(self, codes):
-        for code in codes[:-1]:
-            self.compileLine(code)
+        # for lineNum in range(len(codes[:-1])):
+        lineNum = 0
+        while lineNum != len(codes)-1:
+            self.goto = lineNum
+            self.compileLine(codes[lineNum])
+            lineNum = self.goto if lineNum != self.goto else lineNum+1
         if self.getType(codes[-1]) == 'END':
             return
         else:
             raise SyntaxError('이이이ㅣ이잉! 두루미 합체에에!')
-        # if self.end : return
 
     def compileFile(self, path):
         with open(path, encoding='utf-8') as f:
