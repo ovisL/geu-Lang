@@ -8,9 +8,10 @@ class GeuLang:
         self.goto = 0
 
     def toNumber(self, codesome):
+        tokens = codesome.split(' ')
+        result = 1
+
         if '흐' in codesome:
-            tokens = codesome.split(' ')
-            result = 1
             sign = '*'
             if len(tokens) == 1:
                 val = self.data[tokens[0].count('흐')]
@@ -41,17 +42,9 @@ class GeuLang:
                         sign = '*'
 
         else:
-            tokens = codesome.split(' ')
-            result = 1
-
             for token in tokens:
                 temp = token.count('.') - token.count('~')
                 result *= temp
-
-            # codesome = codesome.replace('.', '')
-            # codesome = codesome.replace('~', '')
-        # if not codesome.empty():
-        # raise SyntaxError('이이이이ㅣ잉 정수우우우!!')
 
         return result
 
